@@ -21,23 +21,63 @@
       vertical-align: top;
       background: #fff;
       position: relative;
+      cursor: pointer;
     }
 
     th {
       background-color: #f2f2f2;
-      height: 30px;
     }
 
-    td .day-number {
+    .day-number {
       position: absolute;
       top: 5px;
       left: 5px;
       font-size: 14px;
       color: #333;
+      font-weight: bold;
+    }
+
+    .memo {
+      position: absolute;
+      top: 25px;
+      left: 5px;
+      right: 5px;
+      font-size: 12px;
+      text-align: left;
+      white-space: pre-wrap;
     }
 
     .today {
       background-color: #fff8b0;
+    }
+
+    /* モーダル */
+    #memoModal {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #memoModal .modal-content {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      width: 300px;
+      text-align: left;
+    }
+
+    #memoModal textarea {
+      width: 100%;
+      height: 100px;
+      margin-top: 10px;
+    }
+
+    #memoModal button {
+      margin-top: 10px;
     }
   </style>
 </head>
@@ -45,16 +85,33 @@
   <h1>筋トレ記録カレンダー</h1>
   <div id="calendar"></div>
 
+  <!-- モーダル -->
+  <div id="memoModal">
+    <div class="modal-content">
+      <h3 id="modalDate"></h3>
+      <textarea id="memoInput" placeholder="筋トレ内容を記録..."></textarea>
+      <br>
+      <button onclick="saveMemo()">保存して閉じる</button>
+    </div>
+  </div>
+
   <script>
     const calendarEl = document.getElementById('calendar');
+    const memoModal = document.getElementById('memoModal');
+    const memoInput = document.getElementById('memoInput');
+    const modalDate = document.getElementById('modalDate');
+
     const today = new Date();
     const year = today.getFullYear();
     const month = today.getMonth(); // 0-based
 
+    let selectedDay = null;
+    const memos = {}; // メモの保存（localStorage化も可能）
+
     function createCalendar(year, month) {
       const firstDay = new Date(year, month, 1);
       const lastDay = new Date(year, month + 1, 0);
-      const startDay = firstDay.getDay(); // 曜日 (0:日曜)
+      const startDay = firstDay.getDay();
       const totalDays = lastDay.getDate();
 
       let html = `<table><tr>
@@ -66,14 +123,39 @@
       }
 
       for (let d = 1; d <= totalDays; d++) {
+        const key = `${year}-${month + 1}-${d}`;
         const isToday = (d === today.getDate() && month === today.getMonth() && year === today.getFullYear());
-        html += `<td class="${isToday ? 'today' : ''}"><div class="day-number">${d}</div></td>`;
+        const memoText = memos[key] || '';
+        html += `<td class="${isToday ? 'today' : ''}" onclick="openMemo(${d})">
+          <div class="day-number">${d}</div>
+          <div class="memo">${memoText}</div>
+        </td>`;
         if ((startDay + d) % 7 === 0) html += `</tr><tr>`;
       }
 
       html += `</tr></table>`;
       calendarEl.innerHTML = html;
     }
+
+    function openMemo(day) {
+      selectedDay = day;
+      const key = `${year}-${month + 1}-${day}`;
+      modalDate.textContent = `${year}年${month + 1}月${day}日`;
+      memoInput.value = memos[key] || '';
+      memoModal.style.display = 'flex';
+    }
+
+    function saveMemo() {
+      const key = `${year}-${month + 1}-${selectedDay}`;
+      memos[key] = memoInput.value.trim();
+      memoModal.style.display = 'none';
+      createCalendar(year, month);
+    }
+
+    // モーダル外クリックで閉じる
+    memoModal.addEventListener('click', e => {
+      if (e.target === memoModal) memoModal.style.display = 'none';
+    });
 
     createCalendar(year, month);
   </script>
