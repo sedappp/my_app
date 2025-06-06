@@ -4,27 +4,45 @@
   <meta charset="utf-8">
   <title>筋トレ記録カレンダー</title>
   <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+    }
+
     table {
       border-collapse: collapse;
       margin: 20px auto;
     }
+
     th, td {
       border: 1px solid #ccc;
-      padding: 10px;
-      text-align: center;
-      width: 40px;
-      height: 40px;
+      width: 80px;
+      height: 80px;
+      vertical-align: top;
+      background: #fff;
+      position: relative;
     }
+
     th {
       background-color: #f2f2f2;
+      height: 30px;
     }
+
+    td .day-number {
+      position: absolute;
+      top: 5px;
+      left: 5px;
+      font-size: 14px;
+      color: #333;
+    }
+
     .today {
-      background-color: #ffd700;
+      background-color: #fff8b0;
     }
   </style>
 </head>
 <body>
-  <h1 style="text-align:center;">筋トレ記録カレンダー</h1>
+  <h1>筋トレ記録カレンダー</h1>
   <div id="calendar"></div>
 
   <script>
@@ -36,7 +54,7 @@
     function createCalendar(year, month) {
       const firstDay = new Date(year, month, 1);
       const lastDay = new Date(year, month + 1, 0);
-      const startDay = firstDay.getDay(); // 曜日
+      const startDay = firstDay.getDay(); // 曜日 (0:日曜)
       const totalDays = lastDay.getDate();
 
       let html = `<table><tr>
@@ -49,7 +67,7 @@
 
       for (let d = 1; d <= totalDays; d++) {
         const isToday = (d === today.getDate() && month === today.getMonth() && year === today.getFullYear());
-        html += `<td class="${isToday ? 'today' : ''}">${d}</td>`;
+        html += `<td class="${isToday ? 'today' : ''}"><div class="day-number">${d}</div></td>`;
         if ((startDay + d) % 7 === 0) html += `</tr><tr>`;
       }
 
