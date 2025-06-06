@@ -51,7 +51,6 @@
       background-color: #fff8b0;
     }
 
-    /* モーダル */
     #memoModal {
       position: fixed;
       top: 0; left: 0;
@@ -106,7 +105,9 @@
     const month = today.getMonth(); // 0-based
 
     let selectedDay = null;
-    const memos = {}; // メモの保存（localStorage化も可能）
+
+    // 🔽 localStorageから取得（なければ空のオブジェクト）
+    let memos = JSON.parse(localStorage.getItem('trainingMemos')) || {};
 
     function createCalendar(year, month) {
       const firstDay = new Date(year, month, 1);
@@ -148,6 +149,10 @@
     function saveMemo() {
       const key = `${year}-${month + 1}-${selectedDay}`;
       memos[key] = memoInput.value.trim();
+
+      // 🔽 localStorage に保存！
+      localStorage.setItem('trainingMemos', JSON.stringify(memos));
+
       memoModal.style.display = 'none';
       createCalendar(year, month);
     }
